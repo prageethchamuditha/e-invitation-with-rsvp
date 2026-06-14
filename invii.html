@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Wedding Invitation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CUSTOM SINHALA FONTS --- */
+        @font-face {
+            font-family: 'THARU DC Susum';
+            src: url('THARU_DC_Susum.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'FMAbhaya';
+            src: url('FMAbhaya.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* --- BASE STYLES --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Montserrat', sans-serif; text-align: center; overflow-x: hidden; transition: background 0.5s ease; }
+        .hidden { display: none !important; opacity: 0; transition: opacity 0.5s ease; }
+        .fade-in { opacity: 1 !important; }
+
+        .normal-punctuation {
+            font-family: 'Montserrat', sans-serif; 
+            font-weight: 500;
+        }
+
+        /* --- CLOUD / SMOKE TRANSITION EFFECT --- */
+        #cloud-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255,255,255,1) 30%, rgba(255,255,255,0.8) 60%, rgba(255,255,255,0) 80%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: width 1.5s ease-in, height 1.5s ease-in, opacity 1s ease-in-out;
+        }
+
+        #cloud-overlay.expand { width: 300vmax; height: 300vmax; opacity: 1; }
+        #cloud-overlay.clear { opacity: 0; }
+
+        /* --- FALLING SNOW / GLITTER EFFECT --- */
+        .particle {
+            position: fixed;
+            top: -10px;
+            z-index: 5;
+            background: rgba(223, 177, 99, 0.6); 
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(105vh) rotate(360deg); }
+        }
+
+        /* --- SCROLL REVEAL ANIMATIONS --- */
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal-item.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- SHARED DESIGN ELEMENTS --- */
+        .top-design { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 80%; max-width: 300px; z-index: 10; }
+        .bottom-line { position: absolute; bottom: 0; left: 0; width: 100%; height: 25px; object-fit: cover; object-position: center; z-index: 10; }
+
+        /* --- FRONT PAGE LAYOUT --- */
+        #front-page { 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; 
+            align-items: center; 
+            min-height: 100vh; 
+            background-color: #f4ecee; 
+            padding: 0; 
+        }
+
+        /* Front Page Background Pattern Opacity */
+        #front-page::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('bg.jpg'); background-repeat: repeat; background-size: 150px;
+            opacity: 0.15; 
+            z-index: 0; pointer-events: none;
+        }
+
+        .greeting-box { margin-top: 28vh; margin-bottom: 0; z-index: 10; }
+        .greeting-box h2 { font-family: 'THARU DC Susum', sans-serif; font-size: 2.5rem; color: #333; font-weight: normal; margin-bottom: 25px; }
+        .date-image { width: 70%; max-width: 250px; height: auto; display: block; margin: 0 auto; }
+
+        #characters-stage { position: relative; width: 100%; max-width: 500px; height: 250px; margin-top: -15px; margin-bottom: auto; z-index: 10; }
+        .character { position: absolute; bottom: 0; max-height: 250px; max-width: 35%; object-fit: contain; width: auto; transition: transform 0.1s ease-out; }
+        #bride { left: 5%; z-index: 2; transform: translateX(0); }
+        #groom { right: 5%; z-index: 1; }
+        
+        #slider-container { width: 80%; max-width: 400px; margin-bottom: 60px; z-index: 10; transition: opacity 0.5s; }
+        #slider-label { font-size: 0.8rem; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        #drag-slider { width: 100%; cursor: pointer; -webkit-appearance: none; background: #e0e0e0; height: 8px; border-radius: 5px; outline: none; }
+        #drag-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 25px; height: 25px; background: #ce2b59; border-radius: 50%; cursor: pointer; }
+        #drag-slider::-moz-range-thumb { width: 25px; height: 25px; background: #ce2b59; border-radius: 50%; cursor: pointer; }
+        #drag-slider:disabled { cursor: default; }
+
+        /* --- DETAILS PAGE (INNER PAGE) --- */
+        #details-page { 
+            position: relative;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; 
+            align-items: center; 
+            min-height: 100vh; 
+            background-color: #fbf9f6; 
+            padding: 0; 
+            font-family: 'FMAbhaya', sans-serif; 
+            color: #333;
+        }
+
+        #details-page::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('couple-bg.jpg') center/cover no-repeat;
+            opacity: 0.08; z-index: 0; pointer-events: none;
+        }
+
+        .inner-content {
+            margin-top: 22vh; 
+            margin-bottom: 80px; 
+            width: 90%;
+            max-width: 600px;
+            z-index: 10; 
+        }
+        
+        .parent-text { font-size: 1.5rem; line-height: 1.3; margin-bottom: 2px; color: #555; }
+        .highlight-name { font-size: 3rem; color: #ce2b59; margin-top: 5px; margin-bottom: 30px; font-weight: normal; }
+        
+        .elegant-divider { width: 60px; height: 1px; background-color: #dfb163; margin: 30px auto; }
+
+        .purpose-text { font-size: 1.7rem; margin: 20px 0; color: #333; }
+        .time-text { font-size: 1.6rem; color: #dfb163; font-weight: normal; margin: 20px 0; }
+        
+        /* HOTEL DETAILS STYLES */
+        .hotel-title { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; color: #ce2b59; font-weight: 600; letter-spacing: 2px; margin-top: 15px; margin-bottom: 5px; }
+        .hotel-subtitle { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; color: #333; font-weight: 500; letter-spacing: 3px; margin-bottom: 5px; }
+        .hotel-location { font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: #777; font-style: italic; margin-bottom: 20px; }
+
+        .venue-text { font-size: 1.6rem; line-height: 1.8; margin-bottom: 25px; color: #555; }
+        .invite-highlight { font-size: 2.8rem; color: #ce2b59; margin-bottom: 10px; font-weight: normal; }
+        .ending-text { font-size: 1.6rem; color: #333; margin-bottom: 30px;}
+
+        /* --- COUNTDOWN TIMER STYLE --- */
+        .countdown-section { margin: 35px 0; font-family: 'Montserrat', sans-serif; }
+        .countdown-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; color: #888; margin-bottom: 15px; }
+        .countdown-container { display: flex; justify-content: center; gap: 15px; }
+        .countdown-block {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 10px; border-radius: 8px; min-width: 65px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #f0eae1;
+        }
+        .countdown-number { font-size: 1.6rem; font-weight: 500; color: #ce2b59; display: block; line-height: 1.2; }
+        .countdown-label { font-size: 0.65rem; text-transform: uppercase; color: #a0a0a0; letter-spacing: 1px; margin-top: 4px; display: block; }
+
+        /* --- GOOGLE MAP CARD STYLE --- */
+        .map-section { margin: 10px 0 40px 0; font-family: 'Montserrat', sans-serif; }
+        .map-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #eaddcd; border-radius: 12px; padding: 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04); text-align: center;
+        }
+        .map-icon { font-size: 1.5rem; color: #ce2b59; margin-bottom: 8px; }
+        .map-card h4 { font-size: 1rem; font-weight: 500; color: #333; margin-bottom: 6px; letter-spacing: 1px; }
+        .map-card p { font-size: 0.85rem; color: #777; margin-bottom: 18px; }
+        .map-button {
+            display: inline-block; background: #ce2b59; color: #fff; text-decoration: none;
+            padding: 12px 30px; font-size: 0.85rem; border-radius: 25px;
+            text-transform: uppercase; letter-spacing: 2px; font-weight: 500; transition: background 0.3s ease;
+        }
+        .map-button:hover { background: #b02047; }
+
+        /* --- RSVP FORM STYLE --- */
+        .rsvp-section {
+            margin: 20px 0 30px 0; background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px; padding: 30px 20px; border: 1px solid #eaddcd;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04); font-family: 'Montserrat', sans-serif; text-align: left;
+        }
+        .rsvp-section h3 { font-size: 1.3rem; color: #333; text-align: center; margin-bottom: 8px; letter-spacing: 2px; font-weight: 500; text-transform: uppercase; }
+        .rsvp-subtitle { font-size: 0.8rem; color: #888; text-align: center; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; color: #555; font-weight: 600; }
+        .form-control {
+            width: 100%; padding: 12px; border: 1px solid #dcd1c4; border-radius: 6px;
+            font-family: 'Montserrat', sans-serif; font-size: 0.95rem; color: #333;
+            background-color: #fbfaf8; outline: none; transition: border-color 0.3s;
+        }
+        .form-control:focus { border-color: #ce2b59; }
+        .rsvp-submit-btn {
+            width: 100%; background: #333; color: #fff; border: none; padding: 14px;
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px;
+            border-radius: 6px; cursor: pointer; font-weight: 500; margin-top: 10px; transition: background 0.3s;
+        }
+        .rsvp-submit-btn:hover { background: #ce2b59; }
+
+        /* --- FOOTER COPYRIGHT STYLE --- */
+        .footer-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.65rem;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 600px) {
+            .greeting-box { margin-top: 180px; } 
+            .greeting-box h2 { font-size: 2.2rem; margin-bottom: 20px; }
+            .date-image { max-width: 200px; }
+            #characters-stage { height: 200px; margin-top: -5px; }
+            .character { max-height: 180px; max-width: 40%; }
+            
+            .inner-content { margin-top: 180px; } 
+            
+            .parent-text { font-size: 1.2rem; line-height: 1.3;}
+            .highlight-name { font-size: 2.5rem; margin-bottom: 30px;}
+            .purpose-text { font-size: 1.4rem; }
+            .time-text { font-size: 1.3rem; }
+            
+            .hotel-title { font-size: 1.4rem; }
+            .hotel-subtitle { font-size: 1rem; }
+            .hotel-location { font-size: 1rem; }
+
+            .venue-text { font-size: 1.3rem; }
+            .invite-highlight { font-size: 2.2rem; }
+            .ending-text { font-size: 1.3rem; }
+            
+            .countdown-block { min-width: 55px; padding: 10px 6px; }
+            .countdown-number { font-size: 1.3rem; }
+
+            .footer-text { font-size: 0.55rem; }
+        }
+    </style>
+</head>
+
+<body id="page-body">
+
+    <div id="cloud-overlay"></div>
+
+    <div id="front-page">
+        <img src="top-design.png" class="top-design" alt="Mandala Design">
+        
+        <div class="greeting-box">
+            <h2>Y%S iqN ux.,ï <span class="normal-punctuation">!</span></h2>
+            <img src="date.png" class="date-image" alt="Wedding Date">
+        </div>
+
+        <div id="characters-stage">
+            <img id="bride" class="character" src="bride.png" alt="Bride">
+            <img id="groom" class="character" src="groom.png" alt="Groom">
+        </div>
+
+        <div id="slider-container">
+            <p id="slider-label">Slide to bring them together</p>
+            <input type="range" id="drag-slider" min="0" max="100" value="0">
+        </div>
+
+        <img src="bottom-line.png" class="bottom-line" alt="Bottom Border">
+    </div>
+
+    <div id="details-page" class="hidden">
+        <img src="top-design.png" class="top-design" alt="Mandala Design">
+
+        <div class="inner-content">
+            
+            <div class="reveal-item">
+                <p class="parent-text">fla<span class="normal-punctuation">.</span>ta<span class="normal-punctuation">.</span>lu,A fldä;=jlal= ue;s;=udf.a iy tu ue;s‚hf.a wdorŒh Èh‚h</p>
+                <h1 class="highlight-name">liqks</h1>
+            </div>
+            
+            <div class="reveal-item">
+                <p class="parent-text">fla<span class="normal-punctuation">.</span>tï<span class="normal-punctuation">.</span>ã<span class="normal-punctuation">.</span>rEmisxy ue;s;=udf.a iy tu ue;s‚hf.a wdorŒh mq;A</p>
+                <h1 class="highlight-name">ufyaIA</h1>
+            </div>
+
+            <div class="elegant-divider reveal-item"></div>
+
+            <div class="reveal-item">
+                <p class="purpose-text">iu. w;sk; .ekSfï m%S;sh ksñ;af;ka</p>
+                <img src="date.png" alt="Wedding Date" style="width: 60%; max-width: 180px; margin: 15px auto; display: block;">
+            </div>
+            
+            <div class="countdown-section reveal-item">
+                <p class="countdown-title">The Big Day Countdown</p>
+                <div class="countdown-container">
+                    <div class="countdown-block"><span class="countdown-number" id="days">00</span><span class="countdown-label">Days</span></div>
+                    <div class="countdown-block"><span class="countdown-number" id="hours">00</span><span class="countdown-label">Hrs</span></div>
+                    <div class="countdown-block"><span class="countdown-number" id="minutes">00</span><span class="countdown-label">Mins</span></div>
+                    <div class="countdown-block"><span class="countdown-number" id="seconds">00</span><span class="countdown-label">Secs</span></div>
+                </div>
+            </div>
+
+            <div class="reveal-item">
+                <p class="time-text">fm<span class="normal-punctuation">.</span>j<span class="normal-punctuation">.</span> <span class="normal-punctuation">08.30</span> isg m<span class="normal-punctuation">.</span>j<span class="normal-punctuation">.</span> <span class="normal-punctuation">04.30</span> olajd</p>
+                <div class="hotel-title">SEETHAWAKA REGENCY</div>
+                <div class="hotel-subtitle">GRAND BALL ROOM</div>
+                <div class="hotel-location">(Avissawella)</div>
+                <p class="venue-text">mßY%fha meje;afjk ux., W;aijyg iyNd.S jk fuka</p>
+            </div>
+            
+            <div class="reveal-item">
+                <h2 class="invite-highlight">Tng</h2>
+                <p class="ending-text">isÿlrk f.!rjŒh wdrdOkh hs<span class="normal-punctuation">.</span></p>
+            </div>
+
+            <div class="map-section reveal-item">
+                <div class="map-card">
+                    <div class="map-icon">📍</div>
+                    <h4>Wedding Venue Location</h4>
+                    <p>Click below to open interactive directions on Google Maps</p>
+                    <a href="https://maps.app.goo.gl/K7G9fAbobfBLwr2h8?g_st=ic" target="_blank" class="map-button">Open Google Maps</a>
+                </div>
+            </div>
+
+            <div class="rsvp-section reveal-item">
+                <h3>RSVP</h3>
+                <p class="rsvp-subtitle">Please let us know if you will attend</p>
+                <form id="rsvp-form">
+                    <div class="form-group">
+                        <label for="rsvp-name">Your Name</label>
+                        <input type="text" id="rsvp-name" name="Name" class="form-control" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rsvp-contact">Contact Number</label>
+                        <input type="tel" id="rsvp-contact" name="Contact" class="form-control" placeholder="Enter phone number" required>
+                    </div>
+                    <button type="submit" class="rsvp-submit-btn" id="submit-btn">Submit RSVP</button>
+                </form>
+                <p id="success-msg" style="display:none; color: #ce2b59; text-align: center; margin-top: 15px; font-weight: 600;">Thank you! Your RSVP has been sent.</p>
+            </div>
+
+            <div class="footer-text reveal-item">
+                All rights reserved for Kasuni & Mahesh © 2026
+            </div>
+
+        </div>
+
+        <img src="bottom-line.png" class="bottom-line" alt="Bottom Border">
+    </div>
+
+    <script>
+        const slider = document.getElementById('drag-slider');
+        const sliderContainer = document.getElementById('slider-container');
+        const bride = document.getElementById('bride');
+        const groom = document.getElementById('groom');
+        const frontPage = document.getElementById('front-page');
+        const detailsPage = document.getElementById('details-page');
+        const body = document.getElementById('page-body');
+        const cloudOverlay = document.getElementById('cloud-overlay');
+
+        let exactTravelDistance = 0;
+        let isTransitioning = false; 
+        const reachHandsOffset = 80; 
+
+        // 1. Calculate sliding gap safely
+        function calculateGap() {
+            if (isTransitioning) return; 
+            
+            bride.style.transform = 'translateX(0)'; 
+            const brideBox = bride.getBoundingClientRect();
+            const groomBox = groom.getBoundingClientRect();
+            
+            exactTravelDistance = (groomBox.left - brideBox.right) + reachHandsOffset; 
+            
+            if (exactTravelDistance <= 0 || isNaN(exactTravelDistance)) { 
+                exactTravelDistance = window.innerWidth * 0.45; 
+            }
+            
+            const currentProgress = slider.value;
+            bride.style.transform = `translateX(${(currentProgress / 100) * exactTravelDistance}px)`;
+        }
+
+        window.addEventListener('load', calculateGap);
+        window.addEventListener('resize', calculateGap);
+        setTimeout(calculateGap, 500);
+
+        // 2. Main Page Slider Logic
+        slider.addEventListener('input', function() {
+            if (isTransitioning) return; 
+            
+            if (exactTravelDistance === 0) calculateGap();
+
+            const progress = this.value;
+            bride.style.transform = `translateX(${(progress / 100) * exactTravelDistance}px)`;
+
+            if (progress >= 99) {
+                isTransitioning = true;
+                slider.disabled = true; 
+                sliderContainer.style.opacity = '0';
+                cloudOverlay.classList.add('expand');
+
+                setTimeout(() => {
+                    frontPage.style.display = 'none';
+                    detailsPage.classList.remove('hidden');
+                    detailsPage.classList.add('fade-in');
+                    body.style.backgroundColor = '#fbf9f6'; 
+
+                    setInterval(createParticle, 400);
+
+                    setTimeout(() => {
+                        cloudOverlay.classList.remove('expand');
+                        cloudOverlay.classList.add('clear');
+                    }, 300); 
+
+                }, 1500); 
+            }
+        });
+
+        // 3. Falling "Magic Dust" Logic
+        function createParticle() {
+            if(detailsPage.classList.contains('hidden')) return; 
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.width = Math.random() * 6 + 4 + 'px'; 
+            particle.style.height = particle.style.width;
+            particle.style.animationDuration = Math.random() * 3 + 4 + 's'; 
+            
+            body.appendChild(particle);
+            setTimeout(() => { particle.remove(); }, 7000);
+        }
+
+        // 4. Scroll Reveal Logic
+        const observerOptions = { threshold: 0.1 };
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-item').forEach((item) => {
+            revealObserver.observe(item);
+        });
+
+        // 5. LIVE JAVASCRIPT COUNTDOWN TIMER
+        const targetWeddingDate = new Date("July 26, 2026 08:30:00").getTime();
+        const timerInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = targetWeddingDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerText = days < 10 ? "0" + days : days;
+            document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
+            document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+            document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                document.getElementById("days").innerText = "00";
+                document.getElementById("hours").innerText = "00";
+                document.getElementById("minutes").innerText = "00";
+                document.getElementById("seconds").innerText = "00";
+            }
+        }, 1000);
+
+        // 6. RSVP FORM TO GOOGLE SHEETS
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwG7VZEsEhwlGn7_WEdKHH-AD4EZ0iA-FpnjUuVFa8F3rhEFQmEAIztR__OMtPMQ99E/exec'; 
+        
+        const form = document.getElementById('rsvp-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const successMsg = document.getElementById('success-msg');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault(); 
+            submitBtn.innerText = 'Sending...';
+            submitBtn.disabled = true;
+
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => {
+                    form.reset(); 
+                    submitBtn.style.display = 'none'; 
+                    successMsg.style.display = 'block'; 
+                })
+                .catch(error => {
+                    submitBtn.innerText = 'Submit RSVP';
+                    submitBtn.disabled = false;
+                    alert('Oops! Something went wrong. Please try again.');
+                });
+        });
+    </script>
+</body>
+</html>
